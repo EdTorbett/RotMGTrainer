@@ -3,11 +3,12 @@ var playerDY = 0;
 
 var counter = 0;
 
-var maxBullets = 50;
-var intervalBetweenBullets = 10;
+var maxBullets = 30;
+var intervalBetweenBullets = 5;
 
-var playerSpeed = 4;
+var playerSpeed = 1.3;
 var bulletSpeed = 1.2;
+var bulletLifespan = 500;
 
 var inTarget = 0;
 
@@ -46,15 +47,20 @@ function tick() {
 	
 	counter += 1;	
 	
-	if (bullets.length < maxBullets && counter >= intervalBetweenBullets) {
-	
+	if (counter >= intervalBetweenBullets) {
+        
+                if (bullets.length >= maxBullets) {
+                    bullets.first().remove();
+                }
+        
 		var angle = Math.atan2(playerPos.top - targetPos.top, playerPos.left - targetPos.left) * 180 / Math.PI;
 	
 		spawnBullet({
 			"top": targetPos.top,
 			"left": targetPos.left,
 			"speed": bulletSpeed,
-			"angle": angle
+			"angle": angle,
+                        "life": bulletLifespan
 		});
 		counter = 0;
 	}
@@ -101,6 +107,7 @@ function moveBullet() {
 	
 	var dX = bullet.data("dx");
 	var dY = bullet.data("dy");
+        var life = bullet.data("life") - 1;
 
 	var bulletPos = bullet.position();
 	
@@ -137,9 +144,14 @@ function moveBullet() {
 	}
 	if (bulletPos.left >= arena.width() - 4) {
 		bullet.remove();
-	}        
+	}   
+        
+        if (life <= 0) {
+            bullet.remove();
+        }
 	
 	bullet.css({"top": bulletPos.top, "left": bulletPos.left});
+        bullet.data("life", life);
 }
 
 function spawnBullet(bullet) {
@@ -151,7 +163,7 @@ function spawnBullet(bullet) {
 	
 	$("<div/>")
 		.addClass("bullet")
-		.data({"dx": dx, "dy": dy})
+		.data({"dx": dx, "dy": dy, "life": bullet.life})
 		.css({"top": bullet.top, "left": bullet.left})
 		.appendTo(arena);
 }
