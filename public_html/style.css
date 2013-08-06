@@ -1,0 +1,55 @@
+body {
+	background-color: #000;
+}
+
+#arena {
+	position: absolute;
+	background-color: #fff;
+	top: 32px;
+	left: 32px;
+	width: 640px;
+	height: 640px;
+}
+
+#player {
+	-moz-border-radius: 30px/30px;
+    -webkit-border-radius: 30px 30px;
+    border-radius: 30px/30px;
+	background-color: #8f8;
+    border:solid 2px #0f0; 
+	margin-left: -16px;
+	margin-top: -16px;
+    width:30px;
+    height:30px;
+	position: absolute;
+	top: 304px;
+	left: 304px;
+}
+
+#target {
+	-moz-border-radius: 30px/30px;
+    -webkit-border-radius: 30px 30px;
+    border-radius: 30px/30px;
+	background-color: #f88;
+    border:solid 2px #f00; 
+	margin-left: -16px;
+	margin-top: -16px;
+    width:30px;
+    height:30px;
+	position: absolute;
+	top: 304px;
+	left: 304px;
+}
+
+.bullet {
+	-moz-border-radius: 6px/6px;
+    -webkit-border-radius: 6px 6px;
+    border-radius: 6px/6px;
+	background-color: #88f;
+    border:solid 1px #00f; 
+	margin-left: -4px;
+	margin-top: -4px;
+    width:6px;
+    height:6px;
+	position: absolute;
+}
