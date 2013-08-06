@@ -3,10 +3,15 @@ var playerDY = 0;
 
 var counter = 0;
 
-var maxBullets = 3;
-var intervalBetweenBullets = 100;
+var maxBullets = 50;
+var intervalBetweenBullets = 10;
 
 var playerSpeed = 4;
+var bulletSpeed = 1.2;
+
+var inTarget = 0;
+
+var score = 0;
 
 function tick() {
 	var player = $("#player");
@@ -48,20 +53,54 @@ function tick() {
 		spawnBullet({
 			"top": targetPos.top,
 			"left": targetPos.left,
-			"speed": 3,
+			"speed": bulletSpeed,
 			"angle": angle
 		});
 		counter = 0;
 	}
+        
+        if (inTarget) {
+            score += 0.1;
+            if (score > 100) {
+                score = 100;
+            }
+        } else {
+            score -= 0.2;
+            if (score < 0) {
+                score = 0;
+            }
+        }
+        
+        $("#score").css("width", score + "%");
+        
+        centerArenaOnPlayer();
+}
+
+function centerArenaOnPlayer() {
+    var player = $("#player");
+    var arena = $("#arena");
+    var arenaBounds = $("#arenaBounds");
+
+    var playerPos = player.position();
+    var arenaCenterX = arenaBounds.width() / 2;
+    var arenaCenterY = arenaBounds.height() / 2;
+
+    arena.css({
+            "top": arenaCenterY - playerPos.top,
+            "left": arenaCenterX - playerPos.left
+        });
 }
 
 function moveBullet() {
 	var bullet = $(this);
 	
 	var arena = $("#arena");
+	var player = $("#player");
 	
-	var dX = parseFloat(bullet.attr("dx"));
-	var dY = parseFloat(bullet.attr("dy"));
+	var playerPos = player.position();
+	
+	var dX = bullet.data("dx");
+	var dY = bullet.data("dy");
 
 	var bulletPos = bullet.position();
 	
@@ -81,6 +120,24 @@ function moveBullet() {
 	if (bulletPos.left >= arena.width() - 4) {
 		bullet.remove();
 	}
+        
+	if (bulletPos.top > playerPos.top - 18
+            && bulletPos.top < playerPos.top + 18
+            && bulletPos.left > playerPos.left - 18
+            && bulletPos.left < playerPos.left + 18) {
+                score = 0;
+		bullet.remove();
+	}
+	if (bulletPos.left < 4) {
+		bullet.remove();
+	}
+
+	if (bulletPos.top >= arena.height() - 4) {
+		bullet.remove();
+	}
+	if (bulletPos.left >= arena.width() - 4) {
+		bullet.remove();
+	}        
 	
 	bullet.css({"top": bulletPos.top, "left": bulletPos.left});
 }
@@ -94,8 +151,7 @@ function spawnBullet(bullet) {
 	
 	$("<div/>")
 		.addClass("bullet")
-		.attr("dx", dx)
-		.attr("dy", dy)
+		.data({"dx": dx, "dy": dy})
 		.css({"top": bullet.top, "left": bullet.left})
 		.appendTo(arena);
 }
@@ -146,9 +202,19 @@ function keyup(event) {
 	}	
 }
 
+function mouseovertarget() {
+    inTarget = 1;
+}
+
+function mouseleavetarget() {
+    inTarget = 0;
+}
+
 $(function() {
 	$(window).keydown(keydown);
 	$(window).keyup(keyup);
-	
+
+	$("#target").hover(mouseovertarget, mouseleavetarget);
+    
 	setInterval(tick, 25);
 });
