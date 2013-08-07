@@ -11,9 +11,9 @@ var canvas,
         bullets = [],
         counter = 0,
         max_bullets = 1000,
-        bullet_speed = 3,
-        interval_between_bullets = 40,
-        bullet_lifespan = 1000;
+        bullet_speed = 5,
+        interval_between_bullets = 1,
+        bullet_lifespan = 5000;
 
 var KEYCODE_SPACE = 32,
         KEYCODE_UP = 38,
