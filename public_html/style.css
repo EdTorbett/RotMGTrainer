@@ -1,84 +1,18 @@
-body {
-	background-color: #000;
+html, body {
+    background-color: #000;
+    padding: 0px;
+    margin: 0px;
 }
 
-#arenaBounds {
-	position: absolute;
-	background-color: #800;
-	top: 32px;
-	left: 32px;
-	width: 640px;
-	height: 640px;
-        overflow: hidden;
-}
-
-#arena {
-	position: absolute;
-	background-color: #fff;
-	top: -1000px;
-	left: -1000px;
-	width: 2000px;
-	height: 2000px;
-}
-
-#player {
-	-moz-border-radius: 30px/30px;
-    -webkit-border-radius: 30px 30px;
-    border-radius: 30px/30px;
-	background-color: #8f8;
-    border:solid 2px #0f0; 
-	margin-left: -16px;
-	margin-top: -16px;
-    width:30px;
-    height:30px;
-	position: absolute;
-	top: 0px;
-	left: 0px;
-}
-
-#target {
-	-moz-border-radius: 30px/30px;
-    -webkit-border-radius: 30px 30px;
-    border-radius: 30px/30px;
-	background-color: #f88;
-    border:solid 2px #f00; 
-	margin-left: -16px;
-	margin-top: -16px;
-    width:30px;
-    height:30px;
-	position: absolute;
-	top: 304px;
-	left: 304px;
-}
-
-.bullet {
-	-moz-border-radius: 6px/6px;
-    -webkit-border-radius: 6px 6px;
-    border-radius: 6px/6px;
-	background-color: #88f;
-    border:solid 1px #00f; 
-	margin-left: -4px;
-	margin-top: -4px;
-    width:6px;
-    height:6px;
-	position: absolute;
-}
-
-#scorebox {
+#content {
     position: absolute;
-    top: 0px;
-    left: 32px;
-    width: 640px;
-    height: 32px;
-    border: 1px solid #fff;
-    margin: -1px;
-}
-
-#score {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    width: 0%;
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
     height: 100%;
-    background-color: #080;
+}
+
+#canvas {
+    background-color: #fff;
+    display: block;
 }
