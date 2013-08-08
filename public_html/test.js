@@ -305,8 +305,8 @@ function calculate_player_direction() {
 
 $(function() {
     // Initialise keyboard controls
-    $("#canvas").keydown(keydown);
-    $("#canvas").keyup(keyup);
+    $(document).keydown(keydown);
+    $(document).keyup(keyup);
 
     //find canvas and load images, wait for last image to load
     canvas = $("#canvas")[0];
@@ -314,8 +314,8 @@ $(function() {
     stage = new createjs.Stage(canvas);
 
     // Maximise the canvas + grab canvas width and height for later calculations
-    screen_width = $("#content").width();
-    screen_height = $("#content").height();
+    screen_width = 800;
+    screen_height = 600;
 
     canvas.width = screen_width;
     canvas.height = screen_height;
