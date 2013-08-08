@@ -6,18 +6,19 @@ var canvas,
         target_location = {},
         player,
         background,
-        player_radius = 20,
+        player_radius = 10,
         target_radius = 20,
-        bullet_radius = 5,
+        bullet_radius = 4,
         player_location = {},
         player_direction = {},
-        player_speed = 4,
-        bullets = [],
+        player_speed = 2,
+        available_bullets = [],
+        allocated_bullets = [],
         counter = 0,
         max_bullets = 300,
-        bullet_speed = 5,
-        interval_between_bullets = 5,
-        bullet_lifespan = 100,
+        bullet_speed = 2,
+        interval_between_bullets = 10,
+        bullet_lifespan = 400,
         score = 0,
         score_text;
 
@@ -142,7 +143,7 @@ function tick() {
     stage.update();
 }
 
-function bullet_ring(x, y, count, speed, life, radius) {
+function create_bullet_ring(x, y, count, speed, life, radius) {
     var self = this;
     self.bullets = [];
     
@@ -172,38 +173,61 @@ function bullet_ring(x, y, count, speed, life, radius) {
     };
 }
 
-function bullet(x, y, angle, speed, life, radius) {
+function deallocate_bullet(bullet) {
+    bullet.x = -1000000;
+    bullet.y = -1000000;
+    bullet.dx = 0;
+    bullet.dy = 0;
+    bullet.life = 10000000;
+    bullet.radius = 0;
+    allocated_bullets.splice(allocated_bullets.indexOf(bullet), 1);
+    available_bullets.push(bullet);
+}
+
+function bullet() {
     var self = this;
-    self.x = x;
-    self.y = y;
-    self.dx = Math.cos(angle) * speed;
-    self.dy = Math.sin(angle) * speed;
-    self.life = life;
+    
+    self.x = -1000000;
+    self.y = -1000000;
+    self.dx = 0;
+    self.dy = 0;
+    self.life = 10000000;
+    self.radius = 0;
+    
     self.db = new createjs.Shape();
-    self.radius = radius;
     self.tick = function() {
         self.db.x = rx(self.x += self.dx);
         self.db.y = ry(self.y += self.dy);
         if ((--self.life) <= 0) {
-            self.remove();
+            deallocate_bullet(self);
         }
         
         var distance = Math.sqrt(Math.pow(player_location.x - self.x, 2)
                 + Math.pow(player_location.y - self.y, 2));
         
         if (distance < (player_radius + self.radius)) {
-            self.remove();
+            deallocate_bullet(self);
             score = 0;
         }
-    };
-    self.remove = function() {
-        stage.removeChild(self.db);
     };
     self.db.graphics.beginFill("red").drawCircle(0, 0, self.radius);
     self.db.x = x;
     self.db.y = y;
     stage.addChild(self.db);
     return self;
+}
+
+function allocate_bullet(x, y, angle, speed, life, radius) {
+    var bullet = available_bullets.shift();
+    bullet.x = x;
+    bullet.y = y;
+    bullet.dx = Math.cos(angle) * speed;
+    bullet.dy = Math.sin(angle) * speed;
+    bullet.life = life;
+    bullet.radius = radius;
+    
+    allocated_bullets.push(bullet);
+    return bullet;
 }
 
 function keydown(event) {
