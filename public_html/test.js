@@ -320,12 +320,16 @@ $(function() {
     canvas.width = screen_width;
     canvas.height = screen_height;
 
-    var tile = $("#bg-tile")[0];
-
     background = new createjs.Shape();
-    background.graphics.beginBitmapFill(tile, "repeat").drawRect(-64, -64, screen_width + 128, screen_height + 128);
     background.x = 0;
     background.y = 0;
+
+    var image = new Image();
+    image.src = "bg_tile.png";
+    image.onload = function() {
+        background.graphics.beginBitmapFill(image, "repeat").drawRect(-64, -64, screen_width + 128, screen_height + 128);
+    };
+    
     stage.addChild(background);
 
     player = new createjs.Shape();
