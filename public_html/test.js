@@ -13,10 +13,10 @@ var canvas,
         player_speed = 4,
         bullets = [],
         counter = 0,
-        max_bullets = 500,
+        max_bullets = 300,
         bullet_speed = 5,
         interval_between_bullets = 5,
-        bullet_lifespan = 500,
+        bullet_lifespan = 100,
         score = 0,
         score_text;
 
@@ -42,14 +42,39 @@ var keys_pressed = {
     KEYCODE_RIGHT: false
 };
 
+function rx(x) {
+    return x - (player_location.x - player.x);
+}
+
+function ry(y) {
+    return y - (player_location.y - player.y);
+}
+
+function ax(x) {
+    return x + (player_location.x - player.x);
+}
+
+function ay(y) {
+    return y + (player_location.y - player.y);
+}
+
 function tick() {
-
-    score++;
-    score_text.text = score;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    if (!stage.mouseInBounds) {
+        return;
+    }
     
+    var mouseX = ax(stage.mouseX);
+    var mouseY = ay(stage.mouseY);
+    
+    console.log("rx: " + stage.mouseX + ", ry: " + stage.mouseY + ", ax: " + mouseX + ", ay: " + mouseY);
+    
+    var distance = Math.sqrt(Math.pow(mouseX - target_location.x, 2)
+                + Math.pow(mouseY - target_location.y, 2));
+        
+    if (distance < target_radius) {
+        score++;
+    }
+
     // update the stage		
     if (player_direction.x !== 0 || player_direction.y !== 0) {
         player_location.x += (player_direction.x * player_speed);
@@ -104,8 +129,10 @@ function tick() {
     }
 
     //Update the target's drawn position based on player movement
-    target.x = target_location.x - (player_location.x - player.x);
-    target.y = target_location.y - (player_location.y - player.y);
+    target.x = rx(target_location.x);
+    target.y = ry(target_location.y);
+
+    score_text.text = score;
 
     stage.update();
 }
@@ -150,8 +177,8 @@ function bullet(x, y, angle, speed, life, radius) {
     self.db = new createjs.Shape();
     self.radius = radius;
     self.tick = function() {
-        self.db.x = (self.x += self.dx) - (player_location.x - player.x);
-        self.db.y = (self.y += self.dy) - (player_location.y - player.y);
+        self.db.x = rx(self.x += self.dx);
+        self.db.y = ry(self.y += self.dy);
         if ((--self.life) <= 0) {
             self.remove();
         }
@@ -282,8 +309,12 @@ $(function() {
     stage = new createjs.Stage(canvas);
 
     // Maximise the canvas + grab canvas width and height for later calculations
-    screen_width = 800;//window.innerWidth - 50;
-    screen_height = 600;//window.innerHeight - 50;
+    screen_width = $("#content").width();
+    screen_height = $("#content").height();
+
+    canvas.width = screen_width;
+    canvas.height = screen_height;
+
 
     player = new createjs.Shape();
     player.graphics.beginFill("green").drawCircle(0, 0, player_radius);
