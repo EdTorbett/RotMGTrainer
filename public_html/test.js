@@ -5,6 +5,7 @@ var canvas,
         target,
         target_location = {},
         player,
+        background,
         player_radius = 20,
         target_radius = 20,
         bullet_radius = 5,
@@ -127,6 +128,10 @@ function tick() {
     for (var index in bullets) {
         bullets[index].tick();
     }
+
+    //Update the background's drawn position based on player movement
+    background.x = rx(0) % 32;
+    background.y = ry(0) % 32;
 
     //Update the target's drawn position based on player movement
     target.x = rx(target_location.x);
@@ -315,6 +320,13 @@ $(function() {
     canvas.width = screen_width;
     canvas.height = screen_height;
 
+    var tile = $("#bg-tile")[0];
+
+    background = new createjs.Shape();
+    background.graphics.beginBitmapFill(tile, "repeat").drawRect(-64, -64, screen_width + 128, screen_height + 128);
+    background.x = 0;
+    background.y = 0;
+    stage.addChild(background);
 
     player = new createjs.Shape();
     player.graphics.beginFill("green").drawCircle(0, 0, player_radius);
