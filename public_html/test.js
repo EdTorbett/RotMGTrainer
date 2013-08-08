@@ -208,10 +208,11 @@ function bullet(x, y, angle, speed, life, radius) {
 
 function keydown(event) {
     //cross browser issues exist
-    if (!e) {
-        var e = window.event;
+    if (!event) {
+        var event = window.event;
     }
-    switch (e.keyCode) {
+    var key = event.which ? event.which : event.keyCode;
+    switch (key) {
         case KEYCODE_W:
             keys_pressed.KEYCODE_W = true;
             break;
@@ -242,10 +243,11 @@ function keydown(event) {
 
 function keyup(event) {
     //cross browser issues exist
-    if (!e) {
-        var e = window.event;
+    if (!event) {
+        var event = window.event;
     }
-    switch (e.keyCode) {
+    var key = event.which ? event.which : event.keyCode;
+    switch (key) {
         case KEYCODE_W:
             keys_pressed.KEYCODE_W = false;
             break;
