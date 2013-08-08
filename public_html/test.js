@@ -7,13 +7,13 @@ var canvas,
         player,
         player_location = {},
         player_direction = {},
-        player_speed = 2,
+        player_speed = 4,
         bullets = [],
         counter = 0,
-        max_bullets = 1000,
+        max_bullets = 500,
         bullet_speed = 5,
         interval_between_bullets = 5,
-        bullet_lifespan = 5000;
+        bullet_lifespan = 500;
 
 var KEYCODE_SPACE = 32,
         KEYCODE_UP = 38,
@@ -60,11 +60,14 @@ function tick() {
 
         var new_bullet;
         
+        var speed_modifier = 0.75 + (Math.random() * 0.5);
+        
         if (Math.random() < 0.05) {
+            var count = Math.floor(5 + (Math.random() * 40));
             new_bullet = new bullet_ring(startX,
                     startY,
-                    30,
-                    bullet_speed,
+                    count,
+                    bullet_speed * speed_modifier,
                     bullet_lifespan);
         } else {
             var angle;
@@ -77,7 +80,7 @@ function tick() {
             new_bullet = new bullet(startX,
                     startY,
                     angle,
-                    bullet_speed,
+                    bullet_speed * speed_modifier,
                     bullet_lifespan);
         }
         
