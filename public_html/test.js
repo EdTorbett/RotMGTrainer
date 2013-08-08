@@ -305,8 +305,8 @@ function calculate_player_direction() {
 
 $(function() {
     // Initialise keyboard controls
-    $(window).keydown(keydown);
-    $(window).keyup(keyup);
+    $("#canvas").keydown(keydown);
+    $("#canvas").keyup(keyup);
 
     //find canvas and load images, wait for last image to load
     canvas = $("#canvas")[0];
