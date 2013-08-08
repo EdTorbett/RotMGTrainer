@@ -12,7 +12,7 @@ var canvas,
         counter = 0,
         max_bullets = 1000,
         bullet_speed = 5,
-        interval_between_bullets = 1,
+        interval_between_bullets = 5,
         bullet_lifespan = 5000;
 
 var KEYCODE_SPACE = 32,
@@ -34,7 +34,7 @@ var keys_pressed = {
     KEYCODE_UP: false,
     KEYCODE_DOWN: false,
     KEYCODE_LEFT: false,
-    KEYCODE_RIGHT: false,
+    KEYCODE_RIGHT: false
 };
 
 function tick() {
@@ -43,7 +43,7 @@ function tick() {
     canvas.height = window.innerHeight;
     
     // update the stage		
-    if (player_direction.x != 0 || player_direction.y != 0) {
+    if (player_direction.x !== 0 || player_direction.y !== 0) {
         player_location.x += (player_direction.x * player_speed);
         player_location.y += (player_direction.y * player_speed);
     }
@@ -58,13 +58,29 @@ function tick() {
         var startX = target_location.x;
         var startY = target_location.y;
 
-        var angle = Math.atan2(player_location.y - startY, player_location.x - startX);
+        var new_bullet;
+        
+        if (Math.random() < 0.05) {
+            new_bullet = new bullet_ring(startX,
+                    startY,
+                    30,
+                    bullet_speed,
+                    bullet_lifespan);
+        } else {
+            var angle;
+            if (Math.random() < 0.2) {
+                angle = Math.atan2(player_location.y - startY, player_location.x - startX);
+            } else {
+                angle = Math.PI * 2 * Math.random();
+            }
 
-        var new_bullet = new bullet(startX,
-                startY,
-                angle,
-                bullet_speed,
-                bullet_lifespan);
+            new_bullet = new bullet(startX,
+                    startY,
+                    angle,
+                    bullet_speed,
+                    bullet_lifespan);
+        }
+        
         bullets.push(new_bullet);
 
         counter = 0;
@@ -81,6 +97,35 @@ function tick() {
     stage.update();
 }
 
+function bullet_ring(x, y, count, speed, life) {
+    var self = this;
+    self.bullets = [];
+    
+    var delta_angle = 2 * Math.PI / count;
+    var angle = 0;
+    for (var i = 0; i < count; i++) {
+        var new_bullet = new bullet(x,
+                y,
+                angle,
+                speed,
+                life);
+        bullets.push(new_bullet);
+        angle += delta_angle;
+    }
+    
+    self.tick = function() {
+        for (var index in bullets) {
+            bullets[index].tick;
+        }
+    };
+    self.remove = function() {
+        for (var index in bullets) {
+            bullets[index].remove();
+        }
+        bullets = [];
+    };
+}
+
 function bullet(x, y, angle, speed, life) {
     var self = this;
     self.x = x;
@@ -95,10 +140,10 @@ function bullet(x, y, angle, speed, life) {
         if ((--self.life) <= 0) {
             self.remove();
         }
-    }
+    };
     self.remove = function() {
         stage.removeChild(self.db);
-    }
+    };
     self.db.graphics.beginFill("red").drawCircle(0, 0, 5);
     self.db.x = x;
     self.db.y = y;
