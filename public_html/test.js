@@ -5,6 +5,9 @@ var canvas,
         target,
         target_location = {},
         player,
+        player_radius = 20,
+        target_radius = 20,
+        bullet_radius = 5,
         player_location = {},
         player_direction = {},
         player_speed = 4,
@@ -13,7 +16,9 @@ var canvas,
         max_bullets = 500,
         bullet_speed = 5,
         interval_between_bullets = 5,
-        bullet_lifespan = 500;
+        bullet_lifespan = 500,
+        score = 0,
+        score_text;
 
 var KEYCODE_SPACE = 32,
         KEYCODE_UP = 38,
@@ -38,6 +43,9 @@ var keys_pressed = {
 };
 
 function tick() {
+
+    score++;
+    score_text.text = score;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -68,7 +76,8 @@ function tick() {
                     startY,
                     count,
                     bullet_speed * speed_modifier,
-                    bullet_lifespan);
+                    bullet_lifespan,
+                    bullet_radius);
         } else {
             var angle;
             if (Math.random() < 0.2) {
@@ -81,7 +90,8 @@ function tick() {
                     startY,
                     angle,
                     bullet_speed * speed_modifier,
-                    bullet_lifespan);
+                    bullet_lifespan,
+                    bullet_radius);
         }
         
         bullets.push(new_bullet);
@@ -100,7 +110,7 @@ function tick() {
     stage.update();
 }
 
-function bullet_ring(x, y, count, speed, life) {
+function bullet_ring(x, y, count, speed, life, radius) {
     var self = this;
     self.bullets = [];
     
@@ -111,7 +121,8 @@ function bullet_ring(x, y, count, speed, life) {
                 y,
                 angle,
                 speed,
-                life);
+                life,
+                radius);
         bullets.push(new_bullet);
         angle += delta_angle;
     }
@@ -129,7 +140,7 @@ function bullet_ring(x, y, count, speed, life) {
     };
 }
 
-function bullet(x, y, angle, speed, life) {
+function bullet(x, y, angle, speed, life, radius) {
     var self = this;
     self.x = x;
     self.y = y;
@@ -137,17 +148,26 @@ function bullet(x, y, angle, speed, life) {
     self.dy = Math.sin(angle) * speed;
     self.life = life;
     self.db = new createjs.Shape();
+    self.radius = radius;
     self.tick = function() {
         self.db.x = (self.x += self.dx) - (player_location.x - player.x);
         self.db.y = (self.y += self.dy) - (player_location.y - player.y);
         if ((--self.life) <= 0) {
             self.remove();
         }
+        
+        var distance = Math.sqrt(Math.pow(player_location.x - self.x, 2)
+                + Math.pow(player_location.y - self.y, 2));
+        
+        if (distance < (player_radius + self.radius)) {
+            self.remove();
+            score = 0;
+        }
     };
     self.remove = function() {
         stage.removeChild(self.db);
     };
-    self.db.graphics.beginFill("red").drawCircle(0, 0, 5);
+    self.db.graphics.beginFill("red").drawCircle(0, 0, self.radius);
     self.db.x = x;
     self.db.y = y;
     stage.addChild(self.db);
@@ -266,7 +286,7 @@ $(function() {
     screen_height = 600;//window.innerHeight - 50;
 
     player = new createjs.Shape();
-    player.graphics.beginFill("green").drawCircle(0, 0, 20);
+    player.graphics.beginFill("green").drawCircle(0, 0, player_radius);
     player.x = screen_width / 2;
     player.y = screen_height / 2;
     player_location.x = 0;
@@ -274,13 +294,20 @@ $(function() {
     stage.addChild(player);
 
     target = new createjs.Shape();
-    target.graphics.beginFill("red").drawCircle(0, 0, 20);
+    target.graphics.beginFill("red").drawCircle(0, 0, target_radius);
     target.x = screen_width / 2;
     target.y = screen_height / 2;
     target_location.x = target.x;
     target_location.y = target.y;
     stage.addChild(target);
 
+    score_text = new createjs.Text("0", "16px Monospace", "#000");
+    score_text.x = 5;
+    score_text.y = 24;
+    score_text.text = 0;
+    score_text.textBaseline = "alphabetic";
+    stage.addChild(score_text);
+    
     player_direction.x = 0, player_direction.y = 0;
 
     createjs.Ticker.addListener(window);
