@@ -11,12 +11,12 @@ var canvas,
         bullet_radius = 4,
         player_location = {},
         player_direction = {},
-        player_speed = 2,
+        player_speed = 2.5,
         available_bullets = [],
         allocated_bullets = [],
         counter = 0,
         max_bullets = 300,
-        bullet_speed = 2,
+        bullet_speed = 2.5,
         interval_between_bullets = 10,
         bullet_lifespan = 400,
         score = 0,
@@ -68,8 +68,6 @@ function tick() {
     var mouseX = ax(stage.mouseX);
     var mouseY = ay(stage.mouseY);
     
-    console.log("rx: " + stage.mouseX + ", ry: " + stage.mouseY + ", ax: " + mouseX + ", ay: " + mouseY);
-    
     var distance = Math.sqrt(Math.pow(mouseX - target_location.x, 2)
                 + Math.pow(mouseY - target_location.y, 2));
         
@@ -86,20 +84,14 @@ function tick() {
     counter += 1;
 
     if (counter >= interval_between_bullets) {
-        if (bullets.length >= max_bullets) {
-            bullets.shift().remove();
-        }
-
         var startX = target_location.x;
         var startY = target_location.y;
 
-        var new_bullet;
-        
         var speed_modifier = 0.75 + (Math.random() * 0.5);
         
         if (Math.random() < 0.05) {
             var count = Math.floor(5 + (Math.random() * 40));
-            new_bullet = new bullet_ring(startX,
+            create_bullet_ring(startX,
                     startY,
                     count,
                     bullet_speed * speed_modifier,
@@ -113,21 +105,19 @@ function tick() {
                 angle = Math.PI * 2 * Math.random();
             }
 
-            new_bullet = new bullet(startX,
+            allocate_bullet(startX,
                     startY,
                     angle,
                     bullet_speed * speed_modifier,
                     bullet_lifespan,
                     bullet_radius);
         }
-        
-        bullets.push(new_bullet);
 
         counter = 0;
     }
 
-    for (var index in bullets) {
-        bullets[index].tick();
+    for (var index in allocated_bullets) {
+        allocated_bullets[index].tick();
     }
 
     //Update the background's drawn position based on player movement
@@ -144,33 +134,17 @@ function tick() {
 }
 
 function create_bullet_ring(x, y, count, speed, life, radius) {
-    var self = this;
-    self.bullets = [];
-    
     var delta_angle = 2 * Math.PI / count;
     var angle = 0;
     for (var i = 0; i < count; i++) {
-        var new_bullet = new bullet(x,
+        allocate_bullet(x,
                 y,
                 angle,
                 speed,
                 life,
                 radius);
-        bullets.push(new_bullet);
         angle += delta_angle;
     }
-    
-    self.tick = function() {
-        for (var index in bullets) {
-            bullets[index].tick;
-        }
-    };
-    self.remove = function() {
-        for (var index in bullets) {
-            bullets[index].remove();
-        }
-        bullets = [];
-    };
 }
 
 function deallocate_bullet(bullet) {
@@ -181,6 +155,9 @@ function deallocate_bullet(bullet) {
     bullet.life = 10000000;
     bullet.radius = 0;
     allocated_bullets.splice(allocated_bullets.indexOf(bullet), 1);
+    bullet.db.graphics.clear().beginFill("red").drawCircle(0, 0, bullet.radius);
+    bullet.tick();
+    
     available_bullets.push(bullet);
 }
 
@@ -196,38 +173,52 @@ function bullet() {
     
     self.db = new createjs.Shape();
     self.tick = function() {
-        self.db.x = rx(self.x += self.dx);
-        self.db.y = ry(self.y += self.dy);
-        if ((--self.life) <= 0) {
-            deallocate_bullet(self);
-        }
-        
-        var distance = Math.sqrt(Math.pow(player_location.x - self.x, 2)
-                + Math.pow(player_location.y - self.y, 2));
-        
-        if (distance < (player_radius + self.radius)) {
-            deallocate_bullet(self);
-            score = 0;
+        if (self.radius > 0) {
+            self.db.x = rx(self.x += self.dx);
+            self.db.y = ry(self.y += self.dy);
+            if ((--self.life) <= 0) {
+                deallocate_bullet(self);
+            }
+
+            var distance = Math.sqrt(Math.pow(player_location.x - self.x, 2)
+                    + Math.pow(player_location.y - self.y, 2));
+
+            if (distance < (player_radius + self.radius)) {
+                deallocate_bullet(self);
+                score = 0;
+            }
+        } else {
+            self.db.x = -1000000;
+            self.db.y = -1000000;
         }
     };
-    self.db.graphics.beginFill("red").drawCircle(0, 0, self.radius);
-    self.db.x = x;
-    self.db.y = y;
+    self.db.graphics.clear().beginFill("red").drawCircle(0, 0, self.radius);
+    self.db.x = -1000000;
+    self.db.y = -1000000;
     stage.addChild(self.db);
     return self;
 }
 
 function allocate_bullet(x, y, angle, speed, life, radius) {
-    var bullet = available_bullets.shift();
+    var bullet;
+    if (available_bullets.length > 0) {
+        //Take an available bullet
+        bullet = available_bullets.shift();
+    } else {
+        //Take the oldest bullet currently in use
+        bullet = allocated_bullets.shift();
+    }
+    
     bullet.x = x;
     bullet.y = y;
     bullet.dx = Math.cos(angle) * speed;
     bullet.dy = Math.sin(angle) * speed;
     bullet.life = life;
     bullet.radius = radius;
+    bullet.db.graphics.clear().beginFill("red").drawCircle(0, 0, bullet.radius);
+    bullet.tick();
     
     allocated_bullets.push(bullet);
-    return bullet;
 }
 
 function keydown(event) {
@@ -382,6 +373,10 @@ $(function() {
     stage.addChild(score_text);
     
     player_direction.x = 0, player_direction.y = 0;
+
+    for (var i = 0; i < max_bullets; i++) {
+        available_bullets.push(new bullet());
+    }
 
     createjs.Ticker.addListener(window);
     // Best Framerate targeted (60 FPS)
