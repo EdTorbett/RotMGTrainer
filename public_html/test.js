@@ -154,11 +154,14 @@ function deallocate_bullet(bullet) {
     bullet.dy = 0;
     bullet.life = 10000000;
     bullet.radius = 0;
-    allocated_bullets.splice(allocated_bullets.indexOf(bullet), 1);
-    bullet.db.graphics.clear().beginFill("red").drawCircle(0, 0, bullet.radius);
-    bullet.tick();
     
-    available_bullets.push(bullet);
+    var index = allocated_bullets.indexOf(bullet);
+    if (index != -1) {
+        allocated_bullets.splice(index, 1);
+        bullet.db.graphics.clear().beginFill("red").drawCircle(0, 0, bullet.radius);
+        bullet.tick();
+        available_bullets.push(bullet);
+    }
 }
 
 function bullet() {
